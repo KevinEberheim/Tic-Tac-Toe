@@ -33,7 +33,9 @@ function render() {
                 symbol = generateCrossSVG();
             }
 
-            table += `<td onclick="handleClick(${index}, this)">${symbol}</td>`;
+            table += `<td onclick="handleClick(${index}, this)">
+            <div class="cell">${symbol}</div>
+            </td>`;
         }
 
         table += '</tr>';
@@ -41,6 +43,37 @@ function render() {
 
     table += '</table>';
     content.innerHTML = table;
+}
+
+function handleClick(index, element) {
+    if (fields[index] !== null) return;
+
+    // Setze Wert im Array
+    fields[index] = currentPlayer;
+
+    // Hole die .cell innerhalb des td
+    let cell = element.firstElementChild;
+
+    // Setze Symbol direkt ins Feld
+    if (currentPlayer === 'circle') {
+        cell.innerHTML = generateCircleSVG();
+        currentPlayer = 'cross';
+    } else {
+        cell.innerHTML = generateCrossSVG();
+        currentPlayer = 'circle';
+    }
+
+    // Entferne onclick
+    element.onclick = null;
+
+    // 🔥 Gewinner prüfen
+    let winner = checkWinner();
+    if (winner) {
+        drawWinningLine(winner);
+
+        // Optional: Spiel deaktivieren
+        document.querySelectorAll('td').forEach(td => td.onclick = null);
+    }
 }
 
 function generateCircleSVG() {
@@ -107,21 +140,74 @@ function generateCrossSVG() {
     `;
 }
 
-function handleClick(index, element) {
-    if (fields[index] !== null) return;
+function checkWinner() {
+    const winPatterns = [
+        [0, 1, 2], // Reihen
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6], // Spalten
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8], // Diagonalen
+        [2, 4, 6]
+    ];
 
-    // Setze Wert im Array
-    fields[index] = currentPlayer;
+    for (let pattern of winPatterns) {
+        let [a, b, c] = pattern;
 
-    // Setze Symbol direkt ins Feld
-    if (currentPlayer === 'circle') {
-        element.innerHTML = generateCircleSVG();
-        currentPlayer = 'cross';
-    } else {
-        element.innerHTML = generateCrossSVG();
-        currentPlayer = 'circle';
+        if (
+            fields[a] &&
+            fields[a] === fields[b] &&
+            fields[a] === fields[c]
+        ) {
+            return pattern;
+        }
     }
 
-    // Entferne onclick
-    element.onclick = null;
+    return null;
+}
+
+function drawWinningLine(pattern) {
+    const linePositions = {
+        // Reihen
+        "0,1,2": [0, 50, 300, 50],
+        "3,4,5": [0, 150, 300, 150],
+        "6,7,8": [0, 250, 300, 250],
+
+        // Spalten
+        "0,3,6": [50, 0, 50, 300],
+        "1,4,7": [150, 0, 150, 300],
+        "2,5,8": [250, 0, 250, 300],
+
+        // Diagonalen
+        "0,4,8": [0, 0, 300, 300],
+        "2,4,6": [300, 0, 0, 300],
+    };
+
+    let key = pattern.toString();
+    let [x1, y1, x2, y2] = linePositions[key];
+
+    let svg = `
+        <svg style="position:absolute; pointer-events:none;" width="300" height="300">
+            <line 
+                x1="${x1}" 
+                y1="${y1}" 
+                x2="${x2}" 
+                y2="${y2}" 
+                stroke="white" 
+                stroke-width="5"
+                stroke-linecap="round"
+                stroke-dasharray="424"
+                stroke-dashoffset="424">
+                <animate 
+                    attributeName="stroke-dashoffset"
+                    from="424"
+                    to="0"
+                    dur="0.5s"
+                    fill="freeze" />
+            </line>
+        </svg>
+    `;
+
+    document.getElementById('content').innerHTML += svg;
 }
