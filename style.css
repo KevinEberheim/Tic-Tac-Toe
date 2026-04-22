@@ -90,3 +90,21 @@ button:hover {
 button:active {
     transform: scale(0.95);
 }
+
+#player-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-top: 60px;
+}
+
+.player {
+    opacity: 0.3;
+    transition: all 0.2s ease;
+}
+
+.player.active {
+    opacity: 1;
+    transform: scale(1.2);
+}

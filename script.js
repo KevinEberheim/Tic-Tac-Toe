@@ -11,6 +11,7 @@ let fields = [
 ];
 
 let currentPlayer = 'circle';
+let gameOver = false;
 
 function init() {
     render();
@@ -43,9 +44,11 @@ function render() {
 
     table += '</table>';
     content.innerHTML = table;
+    renderPlayerInfo();
 }
 
 function handleClick(index, element) {
+    if(gameOver) return;
     if (fields[index] !== null) return;
 
     // Setze Wert im Array
@@ -57,10 +60,8 @@ function handleClick(index, element) {
     // Setze Symbol direkt ins Feld
     if (currentPlayer === 'circle') {
         cell.innerHTML = generateCircleSVG();
-        currentPlayer = 'cross';
     } else {
         cell.innerHTML = generateCrossSVG();
-        currentPlayer = 'circle';
     }
 
     // Entferne onclick
@@ -69,11 +70,25 @@ function handleClick(index, element) {
     // 🔥 Gewinner prüfen
     let winner = checkWinner();
     if (winner) {
+        gameOver = true;
         drawWinningLine(winner);
 
         // Optional: Spiel deaktivieren
         document.querySelectorAll('td').forEach(td => td.onclick = null);
+        return;
     }
+
+    if (isDraw()) {
+        gameOver = true;
+
+        // Optional: Klicks deaktivieren
+        document.querySelectorAll('td').forEach(td => td.onclick = null);
+
+        return;
+    }
+
+    currentPlayer = currentPlayer === 'circle' ? 'cross' : 'circle';
+    renderPlayerInfo();
 }
 
 function generateCircleSVG() {
@@ -104,16 +119,16 @@ function generateCrossSVG() {
         <svg width="70" height="70" viewBox="0 0 70 70">
             <!-- Linie 1 -->
             <line 
-                x1="15" y1="15" 
-                x2="55" y2="55"
+                x1="8" y1="8" 
+                x2="62" y2="62"
                 stroke="#FFC000"
                 stroke-width="5"
                 stroke-linecap="round"
-                stroke-dasharray="56.5"
-                stroke-dashoffset="56.5">
+                stroke-dasharray="76"
+                stroke-dashoffset="76">
                 <animate 
                     attributeName="stroke-dashoffset"
-                    from="56.5"
+                    from="76"
                     to="0"
                     dur="0.2s"
                     fill="freeze" />
@@ -121,16 +136,16 @@ function generateCrossSVG() {
 
             <!-- Linie 2 -->
             <line 
-                x1="55" y1="15" 
-                x2="15" y2="55"
+                x1="62" y1="8" 
+                x2="8" y2="62"
                 stroke="#FFC000"
                 stroke-width="5"
                 stroke-linecap="round"
-                stroke-dasharray="56.5"
-                stroke-dashoffset="56.5">
+                stroke-dasharray="76"
+                stroke-dashoffset="76">
                 <animate 
                     attributeName="stroke-dashoffset"
-                    from="56.5"
+                    from="76"
                     to="0"
                     dur="0.2s"
                     begin="0.2s"
@@ -212,6 +227,10 @@ function drawWinningLine(pattern) {
     document.getElementById('content').innerHTML += svg;
 }
 
+function isDraw() {
+    return fields.every(field => field !== null);
+}
+
 function restartGame() {
     fields = [
         null, null, null,
@@ -219,7 +238,21 @@ function restartGame() {
         null, null, null
     ];
 
-    currentPlayer = 'circle';
-
+    currentPlayer = currentPlayer === 'circle' ? 'cross' : 'circle';
+    gameOver = false;
     render();
+}
+
+function renderPlayerInfo() {
+    let playerInfo = document.getElementById('player-info');
+
+    playerInfo.innerHTML = `
+        <span>Am Zug:</span>
+        <div class="player ${currentPlayer === 'circle' ? 'active' : ''}">
+            ${generateCircleSVG()}
+        </div>
+        <div class="player ${currentPlayer === 'cross' ? 'active' : ''}">
+            ${generateCrossSVG()}
+        </div>
+    `;
 }
