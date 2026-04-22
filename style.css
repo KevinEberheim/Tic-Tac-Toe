@@ -10,6 +10,7 @@ body {
     color: white;
     height: 100vh;
     display: flex;
+    justify-content: center;
     flex-direction: column;
 }
 
@@ -22,7 +23,8 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex: 1; 
+    margin-top: 60px;
+    margin-bottom: 60px; 
     position: relative;  
 }
 
@@ -59,4 +61,32 @@ tr:not(:last-child) td {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 60px;
+}
+
+button {
+    background-color: #00B0EF;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    font-size: 18px;
+    font-family: 'Open Sans', sans-serif;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background-color: #0090c5;
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(0.95);
 }

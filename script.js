@@ -211,3 +211,15 @@ function drawWinningLine(pattern) {
 
     document.getElementById('content').innerHTML += svg;
 }
+
+function restartGame() {
+    fields = [
+        null, null, null,
+        null, null, null,
+        null, null, null
+    ];
+
+    currentPlayer = 'circle';
+
+    render();
+}
